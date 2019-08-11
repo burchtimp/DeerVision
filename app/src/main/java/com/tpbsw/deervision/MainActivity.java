@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -19,18 +20,30 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     CameraBridgeViewBase cameraBridgeViewBase;
     BaseLoaderCallback baseLoaderCallback;
-    boolean startCanny = false;
+    boolean deerVision = false;
     private Mat masterFrame, processedFrame;
-    private boolean firstCall;
 
 
-    public void Canny(View Button){
-        startCanny = !startCanny;
+
+    public void onSwitchVision(View deerView) {
+        cameraBridgeViewBase.disableView();
+        Button switchView = (Button) findViewById(R.id.buttonSwitchView);
+        if (deerVision) {
+            switchView.setText(R.string.deerVisionString);
+            deerVision=false;
+        } else {
+            switchView.setText(R.string.deerVisionString);
+            deerVision=true;
+        }
+        cameraBridgeViewBase.enableView();
     }
 
     @Override
@@ -66,13 +79,14 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         final Mat frame = inputFrame.rgba();
+        if(!deerVision)
+            return frame;
 
         Imgproc.GaussianBlur(frame,frame, new Size(25,25),0);
         Mat diffFrame = frame.clone();
-        if (firstCall) {
+        if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
             masterFrame.release();
             masterFrame = frame.clone();
-            firstCall = false;
         }
         Core.absdiff(frame, masterFrame, diffFrame);
 
@@ -92,13 +106,20 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     @Override
     public void onCameraViewStarted(int width, int height) {
+        createFrames(width, height);
+    }
+
+    private void createFrames(int width, int height) {
         masterFrame = new Mat(width, height, CvType.CV_8UC1, Scalar.all(0));
         processedFrame = new Mat(width, height, CvType.CV_8UC1, Scalar.all(0));
-        firstCall = true;
     }
 
     @Override
     public void onCameraViewStopped() {
+        resetFrames();
+    }
+
+    private void resetFrames() {
         masterFrame.release();
         processedFrame.release();
         System.gc();
