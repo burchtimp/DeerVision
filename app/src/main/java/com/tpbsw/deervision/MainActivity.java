@@ -13,7 +13,9 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -23,21 +25,18 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     CameraBridgeViewBase cameraBridgeViewBase;
     BaseLoaderCallback baseLoaderCallback;
     boolean startCanny = false;
-    Mat master = null;
+    private Mat masterFrame, processedFrame;
+    private boolean firstCall;
+
 
     public void Canny(View Button){
-        if (startCanny == false){
-            startCanny = true;
-        }else{
-            startCanny = false;
-        }
+        startCanny = !startCanny;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         cameraBridgeViewBase = (JavaCameraView)findViewById(R.id.CameraView);
         cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
@@ -66,37 +65,45 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
-        Mat frame = inputFrame.rgba();
+        final Mat frame = inputFrame.rgba();
 
-
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGBA2GRAY);
-        Imgproc.GaussianBlur(frame,frame, new Size(51,51),0);
+        Imgproc.GaussianBlur(frame,frame, new Size(25,25),0);
         Mat diffFrame = frame.clone();
-        if(master == null) {
-            master = frame.clone();
+        if (firstCall) {
+            masterFrame.release();
+            masterFrame = frame.clone();
+            firstCall = false;
         }
-        Log.i("Info", "do the diff...");
-        Core.absdiff(frame, master, diffFrame);
+        else {
+            System.gc();
+        }
+        Core.absdiff(frame, masterFrame, diffFrame);
 
         Mat thresholdFrame = frame.clone();
-
         Imgproc.threshold(diffFrame, thresholdFrame, 50,255, Imgproc.THRESH_BINARY);
+        diffFrame.release();
+        masterFrame.release();
+        masterFrame = frame;
 
-        master = frame;
+        processedFrame.release();
+        processedFrame = frame.clone();
 
-
-
-        return thresholdFrame;
+        processedFrame.setTo(new Scalar(255,103,0), thresholdFrame);
+        thresholdFrame.release();
+        return processedFrame;
     }
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-
+        masterFrame = new Mat(width, height, CvType.CV_8UC1, Scalar.all(0));
+        processedFrame = new Mat(width, height, CvType.CV_8UC1, Scalar.all(0));
+        firstCall = true;
     }
 
     @Override
     public void onCameraViewStopped() {
-
+        masterFrame.release();
+        processedFrame.release();
     }
 
     @Override
