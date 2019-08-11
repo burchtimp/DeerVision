@@ -74,9 +74,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             masterFrame = frame.clone();
             firstCall = false;
         }
-        else {
-            System.gc();
-        }
         Core.absdiff(frame, masterFrame, diffFrame);
 
         Mat thresholdFrame = frame.clone();
@@ -104,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     public void onCameraViewStopped() {
         masterFrame.release();
         processedFrame.release();
+        System.gc();
     }
 
     @Override
