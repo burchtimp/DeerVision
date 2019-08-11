@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     CameraBridgeViewBase cameraBridgeViewBase;
     BaseLoaderCallback baseLoaderCallback;
     boolean startCanny = false;
-    private Mat masterFrame;
+    private Mat masterFrame, processedFrame;
     private boolean firstCall;
 
 
@@ -67,37 +67,43 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         final Mat frame = inputFrame.rgba();
 
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGBA2GRAY);
-        Imgproc.GaussianBlur(frame,frame, new Size(51,51),0);
+        Imgproc.GaussianBlur(frame,frame, new Size(25,25),0);
         Mat diffFrame = frame.clone();
         if (firstCall) {
+            masterFrame.release();
             masterFrame = frame.clone();
             firstCall = false;
         }
+        else {
+            System.gc();
+        }
         Core.absdiff(frame, masterFrame, diffFrame);
 
-
-//
         Mat thresholdFrame = frame.clone();
         Imgproc.threshold(diffFrame, thresholdFrame, 50,255, Imgproc.THRESH_BINARY);
-          masterFrame = frame;
+        diffFrame.release();
+        masterFrame.release();
+        masterFrame = frame;
 
-        Mat processedFrame = frame.clone();
+        processedFrame.release();
+        processedFrame = frame.clone();
 
-        processedFrame.setTo(new Scalar(255,0,0), thresholdFrame);
-        //thresholdFrame.release();
+        processedFrame.setTo(new Scalar(255,103,0), thresholdFrame);
+        thresholdFrame.release();
         return processedFrame;
     }
 
     @Override
     public void onCameraViewStarted(int width, int height) {
         masterFrame = new Mat(width, height, CvType.CV_8UC1, Scalar.all(0));
+        processedFrame = new Mat(width, height, CvType.CV_8UC1, Scalar.all(0));
         firstCall = true;
     }
 
     @Override
     public void onCameraViewStopped() {
         masterFrame.release();
+        processedFrame.release();
     }
 
     @Override
