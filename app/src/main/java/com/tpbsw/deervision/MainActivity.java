@@ -1,13 +1,12 @@
 package com.tpbsw.deervision;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -21,7 +20,6 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -32,16 +30,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Mat masterFrame, processedFrame;
 
 
-
     public void onSwitchVision(View deerView) {
         cameraBridgeViewBase.disableView();
         Button switchView = (Button) findViewById(R.id.buttonSwitchView);
         if (deerVision) {
             switchView.setText(R.string.deerVisionString);
-            deerVision=false;
+            deerVision = false;
         } else {
-            switchView.setText(R.string.deerVisionString);
-            deerVision=true;
+            switchView.setText(R.string.humanVisionString);
+            deerVision = true;
         }
         cameraBridgeViewBase.enableView();
     }
@@ -51,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        cameraBridgeViewBase = (JavaCameraView)findViewById(R.id.CameraView);
+        cameraBridgeViewBase = (JavaCameraView) findViewById(R.id.CameraView);
         cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
         cameraBridgeViewBase.setCvCameraViewListener(this);
 
@@ -62,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             public void onManagerConnected(int status) {
                 super.onManagerConnected(status);
 
-                switch(status){
+                switch (status) {
 
                     case BaseLoaderCallback.SUCCESS:
                         cameraBridgeViewBase.enableView();
@@ -78,11 +75,18 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
-        final Mat frame = inputFrame.rgba();
-        if(!deerVision)
+        Mat frame = inputFrame.rgba();
+        if (!deerVision) {
             return frame;
+        }
 
-        Imgproc.GaussianBlur(frame,frame, new Size(25,25),0);
+        return doDeerVisionProcessing(frame);
+    }
+
+    private Mat doDeerVisionProcessing(Mat frame) {
+        frame = desaturateRed(frame);
+
+        Imgproc.GaussianBlur(frame, frame, new Size(25, 25), 0);
         Mat diffFrame = frame.clone();
         if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
             masterFrame.release();
@@ -91,17 +95,30 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Core.absdiff(frame, masterFrame, diffFrame);
 
         Mat thresholdFrame = frame.clone();
-        Imgproc.threshold(diffFrame, thresholdFrame, 50,255, Imgproc.THRESH_BINARY);
+        Imgproc.threshold(diffFrame, thresholdFrame, 50, 255, Imgproc.THRESH_BINARY);
         diffFrame.release();
         masterFrame.release();
         masterFrame = frame;
 
         processedFrame.release();
+
         processedFrame = frame.clone();
 
-        processedFrame.setTo(new Scalar(255,103,0), thresholdFrame);
+        processedFrame.setTo(new Scalar(255, 255, 255), thresholdFrame);
         thresholdFrame.release();
         return processedFrame;
+    }
+
+    private Mat desaturateRed(Mat frame) {
+        ArrayList<Mat> channel = new ArrayList<Mat>();
+        Core.split(frame, channel);
+        channel.get(2).convertTo(channel.get(2), -1, .5, 20);
+        channel.get(1).convertTo(channel.get(1), -1, .4333, 20);
+        channel.get(0).convertTo(channel.get(0), -1, .01, 20);
+
+        Core.merge(channel, frame);
+        for (Mat m : channel) m.release();
+        return frame;
     }
 
     @Override
@@ -129,9 +146,9 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     protected void onResume() {
         super.onResume();
 
-        if (!OpenCVLoader.initDebug()){
-            Toast.makeText(getApplicationContext(),"There's a problem, yo!", Toast.LENGTH_SHORT).show();
-        }else {
+        if (!OpenCVLoader.initDebug()) {
+            Toast.makeText(getApplicationContext(), "There's a problem, yo!", Toast.LENGTH_SHORT).show();
+        } else {
             baseLoaderCallback.onManagerConnected(baseLoaderCallback.SUCCESS);
         }
     }
@@ -139,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     protected void onPause() {
         super.onPause();
-        if(cameraBridgeViewBase!=null){
+        if (cameraBridgeViewBase != null) {
             cameraBridgeViewBase.disableView();
         }
 
@@ -149,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (cameraBridgeViewBase!=null){
+        if (cameraBridgeViewBase != null) {
             cameraBridgeViewBase.disableView();
         }
     }
