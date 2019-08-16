@@ -35,10 +35,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         cameraBridgeViewBase.disableView();
         Button switchView = (Button) findViewById(R.id.buttonSwitchView);
         if (deerVision) {
-            switchView.setText(R.string.deerVisionString);
+            switchView.setText(R.string.humanVisionString);
             deerVision = false;
         } else {
-            switchView.setText(R.string.humanVisionString);
+            switchView.setText(R.string.deerVisionString);
             deerVision = true;
         }
         cameraBridgeViewBase.enableView();
