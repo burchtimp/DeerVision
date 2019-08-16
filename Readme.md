@@ -40,3 +40,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * Youtube channels: 
     * [Clayton Darwin](https://www.youtube.com/user/DrSimpleton)
     * [Ivan Goncharov](https://www.youtube.com/channel/UCyn1QFyonOr-NKVtX3gw0vw)
+
+## Attributions
+
+* [vecteezy](https://www.vecteezy.com/) - Deer icon 🙏
