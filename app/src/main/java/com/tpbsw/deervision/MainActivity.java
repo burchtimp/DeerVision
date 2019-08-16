@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     BaseLoaderCallback baseLoaderCallback;
     boolean deerVision = false;
     private Mat masterFrame, processedFrame;
+    private int gcCountdown = 1;
 
 
     public void onSwitchVision(View deerView) {
@@ -78,6 +79,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Mat frame = inputFrame.rgba();
         if (!deerVision) {
             return frame;
+        }
+        if (gcCountdown++%100==0) {
+            System.gc();
+            System.runFinalization();
         }
 
         return doDeerVisionProcessing(frame);
