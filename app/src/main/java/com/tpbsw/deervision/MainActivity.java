@@ -84,41 +84,30 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     private Mat doDeerVisionProcessing(Mat frame) {
-        frame = desaturateRed(frame);
-
-        Imgproc.GaussianBlur(frame, frame, new Size(25, 25), 0);
-        Mat diffFrame = frame.clone();
-        if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
-            masterFrame.release();
-            masterFrame = frame.clone();
-        }
-        Core.absdiff(frame, masterFrame, diffFrame);
-
-        Mat thresholdFrame = frame.clone();
-        Imgproc.threshold(diffFrame, thresholdFrame, 50, 255, Imgproc.THRESH_BINARY);
-        diffFrame.release();
-        masterFrame.release();
-        masterFrame = frame;
-
-        processedFrame.release();
-
-        processedFrame = frame.clone();
-
-        processedFrame.setTo(new Scalar(255, 255, 255), thresholdFrame);
-        thresholdFrame.release();
-        return processedFrame;
-    }
-
-    private Mat desaturateRed(Mat frame) {
-        ArrayList<Mat> channel = new ArrayList<Mat>();
-        Core.split(frame, channel);
-        channel.get(2).convertTo(channel.get(2), -1, .5, 20);
-        channel.get(1).convertTo(channel.get(1), -1, .4333, 20);
-        channel.get(0).convertTo(channel.get(0), -1, .01, 20);
-
-        Core.merge(channel, frame);
-        for (Mat m : channel) m.release();
+        // simulate ungulate protanopia
+        ProtanopiaFilter.processImage(frame);
         return frame;
+//        Imgproc.GaussianBlur(frame, frame, new Size(25, 25), 0);
+//        Mat diffFrame = frame.clone();
+//        if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
+//            masterFrame.release();
+//            masterFrame = frame.clone();
+//        }
+//        Core.absdiff(frame, masterFrame, diffFrame);
+//
+//        Mat thresholdFrame = frame.clone();
+//        Imgproc.threshold(diffFrame, thresholdFrame, 75, 255, Imgproc.THRESH_BINARY);
+//        diffFrame.release();
+//        masterFrame.release();
+//        masterFrame = frame;
+//
+//        processedFrame.release();
+//
+//        processedFrame = frame.clone();
+//
+//        processedFrame.setTo(new Scalar(255, 255, 255), thresholdFrame);
+//        thresholdFrame.release();
+//        return processedFrame;
     }
 
     @Override
