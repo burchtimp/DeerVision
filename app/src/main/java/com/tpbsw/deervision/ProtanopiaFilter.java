@@ -4,7 +4,6 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 
 import java.util.ArrayList;
 
@@ -18,11 +17,9 @@ public class ProtanopiaFilter {
 
     public static void processImage(Mat image) {
         Mat outMat = new Mat(3,3, CvType.CV_8UC1);
-        long startTime = System.nanoTime();
         ArrayList<Mat> bgr = new ArrayList<>();
         ArrayList<Mat> bgrOut = new ArrayList<>();
         Core.split(image, bgr);
-        // Blue matrix * 0.75833f + G matrix * 0.24167  --> BlueOut Channel 0.0, .24167, .75833
         Mat tmp = new Mat (image.size(), image.type());
         Mat tmp2 = new Mat (image.size(), image.type());
         Mat tmp3 = new Mat (image.size(), image.type());
@@ -36,31 +33,19 @@ public class ProtanopiaFilter {
             outMat = clearMat(outMat);
             Core.add(tmp, tmp2, outMat);
             Core.add(outMat, tmp3, outMat);
-
-
             bgrOut.add(outMat);
         }
 
-        tmp.release();
-        tmp2.release();
-        tmp3.release();
-
         Core.merge(bgrOut, image);
+        for(Mat m: bgr) m.release();
+        for(Mat m: bgrOut) m.release();
         outMat.release();
         tmp.release();
         tmp2.release();
         tmp3.release();
-
-        long endTime = System.nanoTime();
-        long timeElapsed = endTime - startTime;
-        System.out.println("Execution time in milliseconds: " + timeElapsed / 1000000);
-
     }
     private static Mat clearMat(Mat mat) {
         mat = Mat.zeros(mat.size(), mat.type());
         return mat;
-    }
-    public static byte ceilMaxColor(double pixelValue) {
-        return pixelValue>255.0? (byte) 255.0: (byte)pixelValue;
     }
 }
