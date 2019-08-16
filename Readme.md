@@ -3,10 +3,9 @@
 Android application simulation of deer vision based on latest research. 
 
 This app models deer vision with the following characteristics:
-* red-green color blind
-* enhanced blue contrast
-* near-sightedness approx (20/40) vision
-* simulated motion sensitivity
+* Simulated Ungulate Protanopia (red-green color blindness)
+* Near-sightedness approx (20/40) vision
+* Simulated motion sensitivity
 
 
 ### Prerequisites
@@ -37,6 +36,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * [OpenCV 3.4.5](https://opencv.org/releases/) - for video manipulation
+* [ColorMatrix Algorithm](http://web.archive.org/web/20081014161121/http://www.colorjack.com/labs/colormatrix/) - for Protanopia constants
 * Youtube channels: 
     * [Clayton Darwin](https://www.youtube.com/user/DrSimpleton)
     * [Ivan Goncharov](https://www.youtube.com/channel/UCyn1QFyonOr-NKVtX3gw0vw)
