@@ -86,28 +86,28 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     private Mat doDeerVisionProcessing(Mat frame) {
         // simulate ungulate protanopia
         ProtanopiaFilter.processImage(frame);
-        return frame;
-//        Imgproc.GaussianBlur(frame, frame, new Size(25, 25), 0);
-//        Mat diffFrame = frame.clone();
-//        if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
-//            masterFrame.release();
-//            masterFrame = frame.clone();
-//        }
-//        Core.absdiff(frame, masterFrame, diffFrame);
-//
-//        Mat thresholdFrame = frame.clone();
-//        Imgproc.threshold(diffFrame, thresholdFrame, 75, 255, Imgproc.THRESH_BINARY);
-//        diffFrame.release();
-//        masterFrame.release();
-//        masterFrame = frame;
-//
-//        processedFrame.release();
-//
-//        processedFrame = frame.clone();
-//
-//        processedFrame.setTo(new Scalar(255, 255, 255), thresholdFrame);
-//        thresholdFrame.release();
-//        return processedFrame;
+
+        Imgproc.GaussianBlur(frame, frame, new Size(13, 13), 0);
+        Mat diffFrame = frame.clone();
+        if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
+            masterFrame.release();
+            masterFrame = frame.clone();
+        }
+        Core.absdiff(frame, masterFrame, diffFrame);
+
+        Mat thresholdFrame = frame.clone();
+        Imgproc.threshold(diffFrame, thresholdFrame, 75, 255, Imgproc.THRESH_BINARY);
+        diffFrame.release();
+        masterFrame.release();
+        masterFrame = frame;
+
+        processedFrame.release();
+
+        processedFrame = frame.clone();
+
+        processedFrame.setTo(new Scalar(255, 103, 0), thresholdFrame);
+        thresholdFrame.release();
+        return processedFrame;
     }
 
     @Override
