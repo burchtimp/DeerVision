@@ -87,7 +87,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         // simulate ungulate protanopia
         ProtanopiaFilter.processImage(frame);
 
+        // simulate 20/40 vision
         Imgproc.GaussianBlur(frame, frame, new Size(13, 13), 0);
+
+        // simulate enhanced movement detection
         Mat diffFrame = frame.clone();
         if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
             masterFrame.release();
