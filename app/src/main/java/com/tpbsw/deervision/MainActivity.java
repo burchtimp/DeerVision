@@ -1,6 +1,8 @@
 package com.tpbsw.deervision;
 
+import android.hardware.SensorEvent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     boolean deerVision = false;
     private Mat masterFrame, processedFrame;
     private int gcCountdown = 1;
+    private float movement = 0;
 
 
     public void onSwitchVision(View deerView) {
@@ -71,6 +74,15 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 }
             }
         };
+
+        MovementDetector.getInstance().addListener(new MovementDetector.Listener() {
+
+            @Override
+            public void onMotionDetected(SensorEvent event, float acceleration) {
+                Log.d("INFO", "Acceleration: " + acceleration);
+                movement = acceleration;
+            }
+        });
     }
 
     @Override
@@ -94,27 +106,27 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
         // simulate 20/40 vision
         Imgproc.GaussianBlur(frame, frame, new Size(13, 13), 0);
-
-        // simulate enhanced movement detection
-        Mat diffFrame = frame.clone();
-        if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
-            masterFrame.release();
-            masterFrame = frame.clone();
-        }
-        Core.absdiff(frame, masterFrame, diffFrame);
-
-        Mat thresholdFrame = frame.clone();
-        Imgproc.threshold(diffFrame, thresholdFrame, 75, 255, Imgproc.THRESH_BINARY);
-        diffFrame.release();
-        masterFrame.release();
-        masterFrame = frame;
-
         processedFrame.release();
-
         processedFrame = frame.clone();
+        if (movement < .25) {
+            // simulate enhanced movement detection
+            Mat diffFrame = frame.clone();
+            if (masterFrame.width() != frame.width() || masterFrame.height() != frame.height() || masterFrame.type() != frame.type()) {
+                masterFrame.release();
+                masterFrame = frame.clone();
+            }
+            Core.absdiff(frame, masterFrame, diffFrame);
 
-        processedFrame.setTo(new Scalar(255, 103, 0), thresholdFrame);
-        thresholdFrame.release();
+            Mat thresholdFrame = frame.clone();
+            Imgproc.threshold(diffFrame, thresholdFrame, 75, 255, Imgproc.THRESH_BINARY);
+
+            diffFrame.release();
+            masterFrame.release();
+            masterFrame = frame;
+
+            processedFrame.setTo(new Scalar(255, 103, 0), thresholdFrame);
+            thresholdFrame.release();
+        }
         return processedFrame;
     }
 
@@ -148,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         } else {
             baseLoaderCallback.onManagerConnected(baseLoaderCallback.SUCCESS);
         }
+        MovementDetector.getInstance().start();
     }
 
     @Override
@@ -156,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         if (cameraBridgeViewBase != null) {
             cameraBridgeViewBase.disableView();
         }
+        MovementDetector.getInstance().stop();
 
     }
 
