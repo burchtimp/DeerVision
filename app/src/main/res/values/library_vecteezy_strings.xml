@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="define_vecteezy"></string>
+    <!-- Author section -->
+    <string name="library_vecteezy_author">kjpargeter2018</string>
+    <string name="library_vecteezy_authorWebsite">https://www.vecteezy.com/members/kjpargeter2018</string>
+    <!-- Library section -->
+    <string name="library_vecteezy_libraryName">Vecteezy</string>
+    <string name="library_vecteezy_libraryDescription">Free Vector Graphics by vecteezy.com</string>
+    <string name="library_vecteezy_libraryWebsite">https://www.vecteezy.com</string>
+
+</resources>
