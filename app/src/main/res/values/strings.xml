@@ -2,4 +2,6 @@
     <string name="app_name">Deer Vision</string>
     <string name="humanVisionString">Human Vision</string>
     <string name="deerVisionString">Deer Vision</string>
+    <string name="about">About</string>
+    <string name="open_source_libs">Open Source Libs</string>
 </resources>
