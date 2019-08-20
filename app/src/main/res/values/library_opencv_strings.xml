@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="define_opencv"></string>
+    <!-- Author section -->
+    <string name="library_opencv_author">OpenCV Team</string>
+    <string name="library_opencv_authorWebsite">https://opencv.org</string>
+    <!-- Library section -->
+    <string name="library_opencv_libraryName">OpenCV</string>
+    <string name="library_opencv_libraryDescription">OpenCV (Open Source Computer Vision Library) is an open source computer vision and machine learning software library. OpenCV was built to provide a common infrastructure for computer vision applications and to accelerate the use of machine perception in the commercial products. Being a BSD-licensed product, OpenCV makes it easy for businesses to utilize and modify the code.</string>
+    <string name="library_opencv_libraryWebsite">https://opencv.org/</string>
+    <string name="library_opencv_libraryVersion">3.4.5</string>
+    <!-- OpenSource section -->
+    <string name="library_opencv_isOpenSource">true</string>
+    <string name="library_opencv_repositoryLink">https://github.com/opencv/opencv</string>
+    <!-- ClassPath for autoDetect section -->
+    <string name="library_opencv_classPath">org.opencv</string>
+    <!-- License section -->
+    <string name="library_opencv_licenseId">bsd_3</string>
+    <!-- Custom variables section -->
+</resources>

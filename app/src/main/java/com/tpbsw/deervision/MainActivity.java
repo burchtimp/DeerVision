@@ -3,6 +3,8 @@ package com.tpbsw.deervision;
 import android.hardware.SensorEvent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +12,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mikepenz.aboutlibraries.Libs;
+import com.mikepenz.aboutlibraries.LibsBuilder;
+
+import org.jetbrains.annotations.NotNull;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
@@ -20,8 +26,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -36,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
 
     public void onSwitchVision(View deerView) {
         cameraBridgeViewBase.disableView();
-        Button switchView = (Button) findViewById(R.id.buttonSwitchView);
+        Button switchView = findViewById(R.id.buttonSwitchView);
         if (deerVision) {
             switchView.setText(R.string.humanVisionString);
             deerVision = false;
@@ -64,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 super.onManagerConnected(status);
 
                 switch (status) {
-
                     case BaseLoaderCallback.SUCCESS:
                         cameraBridgeViewBase.enableView();
                         break;
@@ -86,13 +89,38 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.about_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NotNull MenuItem item) {
+        Toast.makeText(this, "Selected Item" + item.getTitle(), Toast.LENGTH_SHORT).show();
+        switch (item.getItemId()) {
+            case R.id.aboutMenuItem:
+                new LibsBuilder()
+                        .withFields(R.string.class.getFields())
+                        .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
+                        .withActivityTitle(getResources().getString(R.string.open_source_libs))
+                        .withLicenseShown(true)
+                        .withAboutIconShown(true)
+                        .withAboutVersionShown(true)
+                        .start(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         Mat frame = inputFrame.rgba();
         if (!deerVision) {
             return frame;
         }
-        if (gcCountdown++%100==0) {
+        if (gcCountdown++ % 100 == 0) {
             System.gc();
             System.runFinalization();
         }
